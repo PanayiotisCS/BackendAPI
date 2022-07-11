@@ -16,7 +16,7 @@ namespace BackendAPI.Models
         public string? CaddressNumber { get; set; }
         public string? CaddressPost { get; set; }
         public string? Phone { get; set; }
-
+        public int StudentNumber { get; set; } 
         public virtual Role? Role { get; set; }
     }
 }

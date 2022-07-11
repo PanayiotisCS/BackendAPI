@@ -68,11 +68,11 @@ namespace BackendAPI.Models
                     .IsUnicode(false)
                     .HasColumnName("roleName");
 
-                entity.Property(e => e.UserId).HasColumnName("userId");
+                entity.Property(e => e.User_Id).HasColumnName("userId");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Roles)
-                    .HasForeignKey(d => d.UserId)
+                    .HasForeignKey(d => d.User_Id)
                     .HasConstraintName("FK__Roles__userId__276EDEB3");
             });
 
@@ -121,6 +121,11 @@ namespace BackendAPI.Models
                     .HasMaxLength(250)
                     .IsUnicode(false)
                     .HasColumnName("phone");
+
+                entity.Property(e => e.StudentNumber)
+                    .HasMaxLength(250)
+                    .IsUnicode(false)
+                    .HasColumnName("studentNumber");
 
                 entity.Property(e => e.RoleId).HasColumnName("roleId");
 
