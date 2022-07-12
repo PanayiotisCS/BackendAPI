@@ -36,25 +36,23 @@ namespace BackendAPI.Controllers
 
         [Route("registration")]
         [HttpPost]
-        public async Task<Response> RegisterUser([FromForm]Student student)
+        public async Task<Response> RegisterUser([FromQuery] User user)
         {
             if (_context.Users == null)
             {
                 return new Response { Status = "Error", Message = "Invalid Data." };
             }
 
-            _context.Students.Add(student);
-            //_context.Roles.Add(role);
-            //_context.Students.Add(student);
+            _context.Users.Add(user);
             try
             {
                 await _context.SaveChangesAsync();
-                
+
             }
             catch (DbUpdateException)
             {
                 //if (UserExists(user.UserId) || RoleExists(role.Id) || StudentExists(student.StudentId))
-                if (UserExists(student.StudentId))
+                if (UserExists(user.Id))
                 {
                     return new Response { Status = "Error", Message = "Invalid Data." };
                 }
@@ -68,7 +66,7 @@ namespace BackendAPI.Controllers
 
         private bool UserExists(int id)
         {
-            return (_context.Users?.Any(e => e.UserId == id)).GetValueOrDefault();
+            return (_context.Users?.Any(e => e.Id == id)).GetValueOrDefault();
         }
 
         private bool RoleExists(int id)
@@ -78,7 +76,7 @@ namespace BackendAPI.Controllers
 
         private bool StudentExists(int id)
         {
-            return (_context.Students?.Any(e => e.StudentId == id)).GetValueOrDefault();
+            return (_context.Students?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

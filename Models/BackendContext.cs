@@ -23,16 +23,19 @@ namespace BackendAPI.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=(localdb)\\Local;Database=Backend;Trusted_Connection=True;");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Admin>(entity =>
             {
-                entity.Property(e => e.AdminId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("adminId");
+                entity.HasIndex(e => e.Email, "UQ__Admins__AB6E6164090A2838")
+                    .IsUnique();
 
                 entity.Property(e => e.Email)
                     .HasMaxLength(300)
@@ -49,38 +52,29 @@ namespace BackendAPI.Models
                     .IsUnicode(false)
                     .HasColumnName("lname");
 
-                entity.Property(e => e.RoleId).HasColumnName("roleId");
+                entity.Property(e => e.UserId).HasColumnName("user_Id");
 
-                entity.HasOne(d => d.Role)
+                entity.HasOne(d => d.User)
                     .WithMany(p => p.Admins)
-                    .HasForeignKey(d => d.RoleId)
-                    .HasConstraintName("FK__Admins__roleId__2D27B809");
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Admins__user_Id__30C33EC3");
             });
 
             modelBuilder.Entity<Role>(entity =>
             {
-                entity.Property(e => e.Id)
-                    .ValueGeneratedNever()
-                    .HasColumnName("id");
+                entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.RoleName)
                     .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("roleName");
-
-                entity.Property(e => e.User_Id).HasColumnName("userId");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.Roles)
-                    .HasForeignKey(d => d.User_Id)
-                    .HasConstraintName("FK__Roles__userId__276EDEB3");
             });
 
             modelBuilder.Entity<Student>(entity =>
             {
-                entity.Property(e => e.StudentId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("studentId");
+                entity.HasIndex(e => new { e.Email, e.StudentNumber }, "UQ__Students__B9DAE8005D7A20D2")
+                    .IsUnique();
 
                 entity.Property(e => e.Caddress)
                     .HasMaxLength(100)
@@ -122,43 +116,50 @@ namespace BackendAPI.Models
                     .IsUnicode(false)
                     .HasColumnName("phone");
 
-                entity.Property(e => e.StudentNumber)
-                    .HasMaxLength(250)
-                    .IsUnicode(false)
-                    .HasColumnName("studentNumber");
-
-                entity.Property(e => e.RoleId).HasColumnName("roleId");
-
                 entity.Property(e => e.Sex)
                     .HasMaxLength(1)
                     .IsUnicode(false)
                     .HasColumnName("sex")
                     .IsFixedLength();
 
-                entity.HasOne(d => d.Role)
+                entity.Property(e => e.StudentNumber).HasColumnName("studentNumber");
+
+                entity.Property(e => e.UserId).HasColumnName("user_id");
+
+                entity.HasOne(d => d.User)
                     .WithMany(p => p.Students)
-                    .HasForeignKey(d => d.RoleId)
-                    .HasConstraintName("FK__Students__roleId__2A4B4B5E");
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Students__user_i__2CF2ADDF");
             });
 
             modelBuilder.Entity<User>(entity =>
             {
-                entity.HasIndex(e => e.Username, "UQ__Users__F3DBC5724CF1B5F0")
+                entity.HasIndex(e => e.Username, "UQ__Users__F3DBC57203C2BF00")
                     .IsUnique();
-
-                entity.Property(e => e.UserId)
-                    .ValueGeneratedNever()
-                    .HasColumnName("userId");
 
                 entity.Property(e => e.Password)
                     .HasMaxLength(200)
                     .IsUnicode(false)
                     .HasColumnName("password");
 
+                entity.Property(e => e.PasswordSalt)
+                    .HasMaxLength(300)
+                    .IsUnicode(false)
+                    .HasColumnName("password_salt");
+
+                entity.Property(e => e.RoleId).HasColumnName("role_id");
+
                 entity.Property(e => e.Username)
                     .HasMaxLength(100)
                     .IsUnicode(false)
                     .HasColumnName("username");
+
+                entity.HasOne(d => d.Role)
+                    .WithMany(p => p.Users)
+                    .HasForeignKey(d => d.RoleId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Users__role_id__29221CFB");
             });
 
             OnModelCreatingPartial(modelBuilder);

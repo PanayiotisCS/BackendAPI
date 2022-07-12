@@ -5,12 +5,12 @@ namespace BackendAPI.Models
 {
     public partial class Admin
     {
-        public int AdminId { get; set; }
-        public int? RoleId { get; set; }
+        public int Id { get; set; }
+        public int UserId { get; set; }
         public string Fname { get; set; } = null!;
         public string Lname { get; set; } = null!;
         public string Email { get; set; } = null!;
 
-        public virtual Role? Role { get; set; }
+        public virtual User User { get; set; } = null!;
     }
 }

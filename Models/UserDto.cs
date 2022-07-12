@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace BackendAPI.Models
+﻿namespace BackendAPI.Models
 {
-    public partial class Student
+    public class UserDto
     {
-        public int Id { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
         public int UserId { get; set; }
         public string Fname { get; set; } = null!;
         public string Lname { get; set; } = null!;
@@ -17,7 +15,5 @@ namespace BackendAPI.Models
         public string? CaddressNumber { get; set; }
         public string? CaddressPost { get; set; }
         public string? Phone { get; set; }
-
-        public virtual User User { get; set; } = null!;
     }
 }

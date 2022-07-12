@@ -7,13 +7,18 @@ namespace BackendAPI.Models
     {
         public User()
         {
-            Roles = new HashSet<Role>();
+            Admins = new HashSet<Admin>();
+            Students = new HashSet<Student>();
         }
 
-        public int UserId { get; set; }
+        public int Id { get; set; }
         public string Username { get; set; } = null!;
         public string Password { get; set; } = null!;
+        public string PasswordSalt { get; set; } = null!;
+        public int RoleId { get; set; }
 
-        public virtual ICollection<Role> Roles { get; set; }
+        public virtual Role Role { get; set; } = null!;
+        public virtual ICollection<Admin> Admins { get; set; }
+        public virtual ICollection<Student> Students { get; set; }
     }
 }
