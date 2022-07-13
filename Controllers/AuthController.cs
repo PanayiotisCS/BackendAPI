@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BackendAPI.Models;
+using BackendAPI.Interfaces;
 using System.Security.Cryptography;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
+using BackendAPI.Requests;
 
 namespace BackendAPI.Controllers
 {
@@ -15,14 +17,14 @@ namespace BackendAPI.Controllers
     {
         
         private readonly BackendContext _context;
-
+        private readonly IUserService userService;
         public AuthController(BackendContext context)
         {
             _context = context;
         }
 
         [HttpPost("register")]
-        public async Task<Response> Register(UserDto request)
+        public async Task<Response> Register(SignupRequest request)
         {
             if(_context.Users.Any(u => u.Username == request.Username))
             {
@@ -114,6 +116,14 @@ namespace BackendAPI.Controllers
             return new Response { Status = "Success", Message = token };
         }
 
+        
+        [HttpPost("logout")]
+        public async Task<Response> LogoutAsync(int userId)
+        {
+            var logout = await _context.Users.FirstAsync(o => o.Id == userId);
+
+            return new Response { Status = "Success", Message = "Logged out." };
+        }
         private string CreateToken(Login user)
         {
             List<Claim> claims = new List<Claim>

@@ -17,6 +17,7 @@ namespace BackendAPI.Models
         }
 
         public virtual DbSet<Admin> Admins { get; set; } = null!;
+        public virtual DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
         public virtual DbSet<Role> Roles { get; set; } = null!;
         public virtual DbSet<Student> Students { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
@@ -59,6 +60,27 @@ namespace BackendAPI.Models
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__Admins__user_Id__30C33EC3");
+            });
+
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.ToTable("RefreshToken");
+
+                entity.Property(e => e.ExpiryDate).HasColumnType("smalldatetime");
+
+                entity.Property(e => e.TokenHash).HasMaxLength(1000);
+
+                entity.Property(e => e.TokenSalt).HasMaxLength(50);
+
+                entity.Property(e => e.Ts)
+                    .HasColumnType("smalldatetime")
+                    .HasColumnName("TS");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.RefreshTokens)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_RefreshToken_User");
             });
 
             modelBuilder.Entity<Role>(entity =>
