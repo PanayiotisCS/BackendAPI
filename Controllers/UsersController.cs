@@ -4,7 +4,7 @@ using BackendAPI.Services;
 using BackendAPI.Interfaces;
 using BackendAPI.Requests;
 using BackendAPI.Responses;
-
+using BackendAPI.Models;
 
 namespace BackendAPI.Controllers
 {
@@ -114,6 +114,30 @@ namespace BackendAPI.Controllers
             }
 
             return Ok();
+        }
+
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult> Get(int id)
+        {
+
+            //if (UserID != id)
+            //{
+            //    return NotFound();
+            //}
+            var getUser = await userService.GetUser(id);
+
+            //if (!getUser.Success)
+            //{
+            //    return UnprocessableEntity(getUser);
+            //}
+
+            ////var checkToken = getUser.User.RefreshTokens.Where(t => t.TokenHash == token);
+            ////if (checkToken == null)
+            ////{
+            ////    return NotFound();
+            ////}
+            return Ok(getUser.Student);
         }
     }
 }

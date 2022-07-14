@@ -4,6 +4,9 @@ using BackendAPI.Interfaces;
 using BackendAPI.Requests;
 using BackendAPI.Responses;
 using BackendAPI.Models;
+using System.Security.Claims;
+using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace BackendAPI.Services
 {
@@ -27,28 +30,46 @@ namespace BackendAPI.Services
                 return new TokenResponse
                 {
                     Success = false,
-                    Error = "Username not found",
+                    Error = "Wrong credentials",
                     ErrorCode = "L02"
                 };
             }
 
-            if (!BCrypt.Net.BCrypt.Verify(loginRequest.Password, user.Password))
+            var passwordHash = PasswordHelper.HashUsingPbkdf2(loginRequest.Password, Convert.FromBase64String(user.PasswordSalt));
+
+            if (user.Password != passwordHash)
             {
                 return new TokenResponse
                 {
                     Success = false,
-                    Error = "Invalid Password",
+                    Error = "Wrong Credentials",
                     ErrorCode = "L03"
                 };
             }
 
             var token = await System.Threading.Tasks.Task.Run(() => _tokenService.GenerateTokensAsync(user.Id));
 
+            var student = _context.Students.SingleOrDefault(s => s.UserId == user.Id);
+
+            if (student == null)
+            {
+                return new TokenResponse
+                {
+                    Success = false,
+                    Error = "Something went wrong",
+                    ErrorCode = "L04"
+                };
+            }
+
             return new TokenResponse
             {
                 Success = true,
                 AccessToken = token.Item1,
-                RefreshToken = token.Item2
+                RefreshToken = token.Item2,
+                UserId = user.Id,
+                Fname = student.Fname,
+                Lname = student.Lname,
+                Email = student.Email
             };
         }
 
@@ -86,14 +107,14 @@ namespace BackendAPI.Services
                     ErrorCode = "S02"
                 };
             }
-            var salt = BCrypt.Net.BCrypt.GenerateSalt();
-            var Hpassword = BCrypt.Net.BCrypt.HashPassword(signupRequest.Password, salt);
+            var salt = PasswordHelper.GetSecureSalt();
+            var Hpassword = PasswordHelper.HashUsingPbkdf2(signupRequest.Password, salt);
 
             var user = new User
             {
                 Username = signupRequest.Username,
                 Password = Hpassword,
-                PasswordSalt = salt,
+                PasswordSalt = Convert.ToBase64String(salt),
                 RoleId = 1
             };
 
@@ -122,6 +143,46 @@ namespace BackendAPI.Services
                 Error = "Unable to save the user",
                 ErrorCode = "S05"
             };
+        }
+
+        
+        public async Task<GetUserResponse> GetUser(int userId)
+        {
+            var results = _context.Students
+                .FromSqlInterpolated($"EXECUTE [dbo].[GET_USER] @user_id ={userId}")
+                .ToList();
+        //var user = _context.Users.SingleOrDefault(user => user.Id == userId);
+     
+            //if (user == null)
+            //{
+            if (results.Count <= 0)
+                return new GetUserResponse
+                {
+                    Success = false,
+                    Error = "Something went wrong",
+                    ErrorCode = "S06"
+                };
+            //}
+            //var student = _context.Students.SingleOrDefault(s => s.UserId == userId);
+
+            //if (student == null)
+            //{
+            //    return new GetUserResponse
+            //    {
+            //        Success = false,
+            //        Error = "Something went wrong",
+            //        ErrorCode = "S06"
+            //    };
+            //}
+
+            return new GetUserResponse
+            {
+                Success = true,
+                //Student = JsonConvert.SerializeObject(results)
+                Student = JsonConvert.SerializeObject(results)
+            };
+
+            //_context.SqlQuery<YourEntityType>("storedProcedureName",params);
         }
     }
 }

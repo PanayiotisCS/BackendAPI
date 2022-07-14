@@ -31,7 +31,7 @@ namespace BackendAPI.Services
 
             var salt = RandomNumberGenerator.GetBytes(32);
 
-            var refreshedTokenHashed = HashUsingPbkdf2(refreshToken, salt);
+            var refreshedTokenHashed = PasswordHelper.HashUsingPbkdf2(refreshToken, salt);
 
             if (userRecord.RefreshTokens != null && userRecord.RefreshTokens.Any())
             {
@@ -84,7 +84,7 @@ namespace BackendAPI.Services
                 return response;
             }
 
-            var refreshTokenToValidateHash = HashUsingPbkdf2(refreshTokenRequest.RefreshToken, Convert.FromBase64String(refreshToken.TokenSalt));
+            var refreshTokenToValidateHash = PasswordHelper.HashUsingPbkdf2(refreshTokenRequest.RefreshToken, Convert.FromBase64String(refreshToken.TokenSalt));
 
             if (refreshToken.TokenHash != refreshTokenToValidateHash)
             {
@@ -106,13 +106,6 @@ namespace BackendAPI.Services
             response.UserId = refreshToken.UserId;
 
             return response;
-        }
-
-        private static string HashUsingPbkdf2(string password, byte[] salt)
-        {
-            byte[] derivedKey = KeyDerivation.Pbkdf2(password, salt, KeyDerivationPrf.HMACSHA256, iterationCount: 100000, 32);
-
-            return Convert.ToBase64String(derivedKey);
         }
     }
 }
