@@ -101,12 +101,11 @@ namespace BackendAPI.Controllers
             return Ok(signupResponse.Username);
         }
 
-        [Authorize]
         [HttpPost]
         [Route("logout")]
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> Logout(int id)
         {
-            var logout = await userService.LogoutAsync(UserID);
+            var logout = await userService.LogoutAsync(id);
 
             if (!logout.Success)
             {
