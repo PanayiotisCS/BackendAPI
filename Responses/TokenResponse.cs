@@ -12,6 +12,7 @@ namespace BackendAPI.Responses
         public string Fname { get; set; }
         public string Lname { get; set; }
         public string Email { get; set; }
+        public string Role { get; set; }
 
     }
 
@@ -31,5 +32,11 @@ namespace BackendAPI.Responses
     {
         //public Claims User { get; internal set; }
         public String Student { get; set; }
+    }
+
+    public class FormResponse : BaseResponse 
+    {
+        public Form? Form { get; set; }
+        //public List<Form>? Forms { get; set; }
     }
 }

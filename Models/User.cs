@@ -8,6 +8,7 @@ namespace BackendAPI.Models
         public User()
         {
             Admins = new HashSet<Admin>();
+            Answers = new HashSet<Answer>();
             RefreshTokens = new HashSet<RefreshToken>();
             Students = new HashSet<Student>();
         }
@@ -20,6 +21,7 @@ namespace BackendAPI.Models
 
         public virtual Role Role { get; set; } = null!;
         public virtual ICollection<Admin> Admins { get; set; }
+        public virtual ICollection<Answer> Answers { get; set; }
         public virtual ICollection<RefreshToken> RefreshTokens { get; set; }
         public virtual ICollection<Student> Students { get; set; }
     }

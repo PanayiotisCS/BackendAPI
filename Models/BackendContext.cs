@@ -17,6 +17,8 @@ namespace BackendAPI.Models
         }
 
         public virtual DbSet<Admin> Admins { get; set; } = null!;
+        public virtual DbSet<Answer> Answers { get; set; } = null!;
+        public virtual DbSet<Form> Forms { get; set; } = null!;
         public virtual DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
         public virtual DbSet<Role> Roles { get; set; } = null!;
         public virtual DbSet<Student> Students { get; set; } = null!;
@@ -35,7 +37,7 @@ namespace BackendAPI.Models
         {
             modelBuilder.Entity<Admin>(entity =>
             {
-                entity.HasIndex(e => e.Email, "UQ__Admins__AB6E6164090A2838")
+                entity.HasIndex(e => e.Email, "UQ__Admins__AB6E6164B519FF3D")
                     .IsUnique();
 
                 entity.Property(e => e.Email)
@@ -59,7 +61,38 @@ namespace BackendAPI.Models
                     .WithMany(p => p.Admins)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Admins__user_Id__30C33EC3");
+                    .HasConstraintName("FK__Admins__user_Id__0A688BB1");
+            });
+
+            modelBuilder.Entity<Answer>(entity =>
+            {
+                entity.Property(e => e.DateInserted)
+                    .HasColumnType("datetime")
+                    .HasColumnName("dateInserted")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.FormId).HasColumnName("form_id");
+
+                entity.Property(e => e.Structure).HasColumnName("structure");
+
+                entity.Property(e => e.UserId).HasColumnName("user_id");
+
+                entity.HasOne(d => d.Form)
+                    .WithMany(p => p.Answers)
+                    .HasForeignKey(d => d.FormId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Answers__form_id__1E6F845E");
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.Answers)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Answers__user_id__1F63A897");
+            });
+
+            modelBuilder.Entity<Form>(entity =>
+            {
+                entity.Property(e => e.Structure).HasColumnName("structure");
             });
 
             modelBuilder.Entity<RefreshToken>(entity =>
@@ -95,7 +128,7 @@ namespace BackendAPI.Models
 
             modelBuilder.Entity<Student>(entity =>
             {
-                entity.HasIndex(e => new { e.Email, e.StudentNumber }, "UQ__Students__B9DAE8005D7A20D2")
+                entity.HasIndex(e => new { e.Email, e.StudentNumber }, "UQ__Students__B9DAE8000B4FBF20")
                     .IsUnique();
 
                 entity.Property(e => e.Caddress)
@@ -152,12 +185,12 @@ namespace BackendAPI.Models
                     .WithMany(p => p.Students)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Students__user_i__2CF2ADDF");
+                    .HasConstraintName("FK__Students__user_i__0697FACD");
             });
 
             modelBuilder.Entity<User>(entity =>
             {
-                entity.HasIndex(e => e.Username, "UQ__Users__F3DBC57203C2BF00")
+                entity.HasIndex(e => e.Username, "UQ__Users__F3DBC5726877A4BE")
                     .IsUnique();
 
                 entity.Property(e => e.Password)
@@ -181,7 +214,7 @@ namespace BackendAPI.Models
                     .WithMany(p => p.Users)
                     .HasForeignKey(d => d.RoleId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Users__role_id__29221CFB");
+                    .HasConstraintName("FK__Users__role_id__02C769E9");
             });
 
             OnModelCreatingPartial(modelBuilder);

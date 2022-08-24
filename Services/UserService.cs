@@ -49,14 +49,40 @@ namespace BackendAPI.Services
 
             var token = await System.Threading.Tasks.Task.Run(() => _tokenService.GenerateTokensAsync(user.Id));
 
-            var student = _context.Students.SingleOrDefault(s => s.UserId == user.Id);
+            if (loginRequest.Role == "Student")
+            {
+                var student = _context.Students.SingleOrDefault(s => s.UserId == user.Id);
 
-            if (student == null)
+                if (student == null)
+                {
+                    return new TokenResponse
+                    {
+                        Success = false,
+                        Error = "Wrong Credentials",
+                        ErrorCode = "L04"
+                    };
+                }
+
+                return new TokenResponse
+                {
+                    Success = true,
+                    AccessToken = token.Item1,
+                    RefreshToken = token.Item2,
+                    Role = "student",
+                    UserId = user.Id,
+                    Fname = student.Fname,
+                    Lname = student.Lname,
+                    Email = student.Email
+                };
+            }
+            var admin = _context.Admins.SingleOrDefault(s => s.UserId == user.Id);
+
+            if (admin == null)
             {
                 return new TokenResponse
                 {
                     Success = false,
-                    Error = "Something went wrong",
+                    Error = "Wrong Credentials",
                     ErrorCode = "L04"
                 };
             }
@@ -66,11 +92,13 @@ namespace BackendAPI.Services
                 Success = true,
                 AccessToken = token.Item1,
                 RefreshToken = token.Item2,
+                Role = "admin",
                 UserId = user.Id,
-                Fname = student.Fname,
-                Lname = student.Lname,
-                Email = student.Email
+                Fname = admin.Fname,
+                Lname = admin.Lname,
+                Email = admin.Email
             };
+            
         }
 
         public async Task<LogoutResponse> LogoutAsync(int userId)
