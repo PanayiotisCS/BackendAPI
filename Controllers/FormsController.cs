@@ -52,14 +52,21 @@ namespace BackendAPI.Controllers
         // PUT: api/Forms/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutForm(int id, Form form)
+        public async Task<IActionResult> PutForm(int id, string structure)
         {
-            if (id != form.Id)
-            {
-                return BadRequest();
-            }
+            //if (id != form.Id)
+            //{
+            //    return BadRequest();
+            //}
 
-            _context.Entry(form).State = EntityState.Modified;
+            var form = await _context.Forms.FindAsync(id);
+
+            if (form == null)
+            {
+                return NotFound();
+            }
+            form.Structure = structure;
+            //_context.Entry(form).State = EntityState.Modified;
 
             try
             {
