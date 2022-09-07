@@ -32,6 +32,22 @@ namespace BackendAPI.Controllers
             return await _context.Answers.ToListAsync();
         }
 
+        // GET: api/Answers/FromForm/2
+        [HttpGet("FromForm/{id}")]
+        public async Task<IQueryable<Answer>> GetFormAnswers(int id)
+        {
+            var answers = from b in _context.Answers
+                                where b.FormId == id
+                                select b;
+
+
+            if (answers == null)
+            {
+                return null;
+            }
+            return answers;
+        }
+
         // GET: api/Answers/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Answer>> GetAnswer(int id)
