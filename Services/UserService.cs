@@ -138,33 +138,62 @@ namespace BackendAPI.Services
             var salt = PasswordHelper.GetSecureSalt();
             var Hpassword = PasswordHelper.HashUsingPbkdf2(signupRequest.Password, salt);
 
-            var user = new User
+            if (signupRequest.Type.Equals("Admin"))
             {
-                Username = signupRequest.Username,
-                Password = Hpassword,
-                PasswordSalt = Convert.ToBase64String(salt),
-                RoleId = 1
-            };
+                var user = new User
+                {
+                    Username = signupRequest.Username,
+                    Password = Hpassword,
+                    PasswordSalt = Convert.ToBase64String(salt),
+                    RoleId = 2
+                };
 
-            await _context.Users.AddAsync(user);
+                await _context.Users.AddAsync(user);
 
-            user.Students?.Add(new Student
-            {
-                UserId = user.Id,
-                Fname = signupRequest.Fname,
-                Lname = signupRequest.Lname,
-                Email = signupRequest.Email,
-                StudentNumber = signupRequest.StudentNumber,
-                Phone = signupRequest.Phone
-            });
+                user.Admins?.Add(new Admin
+                {
+                    UserId = user.Id,
+                    Fname = signupRequest.Fname,
+                    Lname = signupRequest.Lname,
+                    Email = signupRequest.Email,
+                });
 
-            var saveResponse = await _context.SaveChangesAsync();
+                var saveResponse = await _context.SaveChangesAsync();
 
-            if (saveResponse >= 0)
-            {
-                return new SignupResponse { Success = true, Username = user.Username };
+                if (saveResponse >= 0)
+                {
+                    return new SignupResponse { Success = true, Username = user.Username };
+                }
             }
+            else
+            {
+                var user = new User
+                {
+                    Username = signupRequest.Username,
+                    Password = Hpassword,
+                    PasswordSalt = Convert.ToBase64String(salt),
+                    RoleId = 1
+                };
 
+                await _context.Users.AddAsync(user);
+                
+                user.Students?.Add(new Student
+                {
+                    UserId = user.Id,
+                    Fname = signupRequest.Fname,
+                    Lname = signupRequest.Lname,
+                    Email = signupRequest.Email,
+                    StudentNumber = signupRequest.StudentNumber,
+                    Phone = signupRequest.Phone
+                });
+                var saveResponse = await _context.SaveChangesAsync();
+
+                if (saveResponse >= 0)
+                {
+                    return new SignupResponse { Success = true, Username = user.Username };
+                }
+            }
+            
             return new SignupResponse
             {
                 Success = false,
@@ -173,7 +202,7 @@ namespace BackendAPI.Services
             };
         }
 
-        
+
         public async Task<GetUserResponse> GetUser(int userId)
         {
             var results = _context.Students

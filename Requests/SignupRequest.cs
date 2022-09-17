@@ -17,6 +17,7 @@ namespace BackendAPI.Requests
         public string Email { get; set; } = null!;
         [Required]
         public int StudentNumber { get; set; }
+        public string? Type { get; set; }
         public string? Sex { get; set; }
         public string? Caddress { get; set; }
         public string? CaddressCity { get; set; }
